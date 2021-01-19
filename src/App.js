@@ -1,25 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import rp from "request-promise";
+import cheerio from "cheerio";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import "./App.css";
+
+class App extends Component {
+  state = { names: [] };
+
+  componentDidMount() {
+    // use the request-promise library to fetch the HTML from pokemon.org
+    rp("https://tureng.com/tr/turkce-ingilizce/instance")
+      .then(html => {
+        let names = [];
+        let $ = cheerio.load(html);
+
+        // find what element ids, classes, or tags you want from opening console in the browser
+        // cheerio library lets you select elements similar to querySelector
+        $("td").each(function(i, element) {
+          let name = $(this)
+            .prepend()
+            .text();
+          names.push(name);
+        });
+
+        this.setState({ names });
+      })
+      .catch(function(err) {
+        console.log("crawl failed");
+      });
+  }
+
+  render() {
+    return (
+      <div>
+        <ul>
+          {this.state.names.map(name => {
+            return <li key={name}>{name}</li>;
+          })}
+        </ul>
+      </div>
+    );
+  }
 }
 
 export default App;
